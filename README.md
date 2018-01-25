@@ -1,4 +1,4 @@
-# Docker for php-msf
+# Docker for php-dev
 
 # Registry
 

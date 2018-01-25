@@ -4,7 +4,7 @@ ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime
 
 set|grep '_.*=' >/home/worker/.ssh/environment
 
-MODULES="php supervisor redis-6379 redis-6380 redis-6381 redis-7379 redis-7380 redis-7381 memcached mongodb rabbitmq"
+MODULES="php supervisor redis-6379å mongodb rabbitmq"
 for i in $MODULES
 do
 mkdir -p /home/worker/data/$i/log
