@@ -1,5 +1,5 @@
 FROM centos:centos6.9
-MAINTAINER pinguoops <pinguo-ops@camera360.com>
+MAINTAINER niulingyun <leandre@qq.com>
 
 # -----------------------------------------------------------------------------
 # Make src dir
@@ -16,8 +16,25 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     && curl --silent --location https://raw.githubusercontent.com/nodesource/distributions/master/rpm/setup_6.x | bash - \
     && yum -y update \
     && yum groupinstall -y "Development tools" \
-    && yum install -y gcc-c++ zlib-devel bzip2-devel openssl \
+    && yum install -y gcc-c++ zlib-devel bzip2-devel openssl boost-devel \
     openssl-devel ncurses-devel sqlite-devel wget \
+    tar gzip bzip2 unzip file perl-devel perl-ExtUtils-Embed \
+    pcre openssh-server openssh sudo gperf \
+    screen vim git telnet expat libuuid-devel \
+    lemon net-snmp net-snmp-devel \
+    ca-certificates perl-CPAN m4 \
+    gd libjpeg libpng zlib libevent net-snmp net-snmp-devel \
+    net-snmp-libs freetype libtool-tldl libxml2 unixODBC \
+    libxslt libmcrypt freetds \
+    gd-devel libjpeg-devel libpng-devel \
+    freetype-devel libtool-ltdl libtool-ltdl-devel \
+    libxml2-devel gettext-devel \
+    curl-devel gettext-devel libevent-devel \
+    libxslt-devel expat-devel unixODBC-devel \
+    libmcrypt-devel freetds-devel \
+    pcre-devel openldap openldap-devel libc-client-devel \
+    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree \
+    && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
     && rm -rf /var/cache/{yum,ldconfig}/* \
     && rm -rf /etc/ld.so.cache \
     && yum clean all
@@ -54,31 +71,6 @@ RUN cd ${SRC_DIR} \
     && rm -rf ${SRC_DIR}/Python*
 
 # -----------------------------------------------------------------------------
-# Devel libraries for delelopment tools like php & nginx ...
-# -----------------------------------------------------------------------------
-RUN yum -y install \
-    tar gzip bzip2 unzip file perl-devel perl-ExtUtils-Embed \
-    pcre openssh-server openssh sudo \
-    screen vim git telnet expat \
-    lemon net-snmp net-snmp-devel \
-    ca-certificates perl-CPAN m4 \
-    gd libjpeg libpng zlib libevent net-snmp net-snmp-devel \
-    net-snmp-libs freetype libtool-tldl libxml2 unixODBC \
-    libxslt libmcrypt freetds \
-    gd-devel libjpeg-devel libpng-devel zlib-devel \
-    freetype-devel libtool-ltdl libtool-ltdl-devel \
-    libxml2-devel zlib-devel bzip2-devel gettext-devel \
-    curl-devel gettext-devel libevent-devel \
-    libxslt-devel expat-devel unixODBC-devel \
-    openssl-devel libmcrypt-devel freetds-devel \
-    pcre-devel openldap openldap-devel libc-client-devel \
-    jemalloc jemalloc-devel inotify-tools nodejs apr-util yum-utils tree \
-    && ln -s /usr/lib64/libc-client.so /usr/lib/libc-client.so \
-    && rm -rf /var/cache/{yum,ldconfig}/* \
-    && rm -rf /etc/ld.so.cache \
-    && yum clean all
-
-# -----------------------------------------------------------------------------
 # Install supervisor and distribute ...
 # -----------------------------------------------------------------------------
 RUN pip install supervisor distribute \
@@ -104,9 +96,9 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Chongqing /etc/localtime \
 # -----------------------------------------------------------------------------
 ENV CURL_INSTALL_DIR ${HOME}/libcurl
 RUN cd ${SRC_DIR} \
-    && wget -q -O curl-7.55.1.tar.gz http://curl.askapache.com/download/curl-7.55.1.tar.gz \
-    && tar xzf curl-7.55.1.tar.gz \
-    && cd curl-7.55.1 \
+    && wget -q -O curl-7.58.0.tar.gz http://curl.askapache.com/download/curl-7.58.0.tar.gz \
+    && tar xzf curl-7.58.0.tar.gz \
+    && cd curl-7.58.0 \
     && ./configure --prefix=${CURL_INSTALL_DIR} \
     && make 1>/dev/null \
     && make install \
@@ -171,13 +163,14 @@ RUN cd ${SRC_DIR} \
     && rm -rf ${SRC_DIR}/mongodb*
 
 ## -----------------------------------------------------------------------------
-## Install Mysql(client)
+## Install Mysql
 ## -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
     && wget -q -O mysql57-community-release-el6-11.noarch.rpm https://dev.mysql.com/get/mysql57-community-release-el6-11.noarch.rpm \
     && rpm -ivh --nodigest --nosignature mysql57-community-release-el6-11.noarch.rpm \
-    && yum -v -y install mysql-community-client ncurses-devel \
-    && rm -f mysql57-community-release-el6-11.noarch.rpm
+    && yum -v -y install mysql-community-client mysql-community-server \
+    && rm -f mysql57-community-release-el6-11.noarch.rpm \
+    && yum clean all
 
 # -----------------------------------------------------------------------------
 # Install Rabbitmq
@@ -279,9 +272,21 @@ run cd $SRC_DIR \
     && rm -rf ${SRC_DIR}/re2c*
 
 # -----------------------------------------------------------------------------
+# Install Gearman
+# -----------------------------------------------------------------------------
+RUN cd ${SRC_DIR} \
+    && wget -q https://github.com/gearman/gearmand/releases/download/1.1.18/gearmand-1.1.18.tar.gz \
+    && tar zxf gearmand-1.1.18.tar.gz \
+    && cd gearmand-1.1.18 \
+    && ./configure --prefix=${HOME}/gearmand --disable-hiredis \
+    && make -j \
+    && make install \
+    && rm -rf $SRC_DIR/gearmand*
+
+# -----------------------------------------------------------------------------
 # Install PHP
 # -----------------------------------------------------------------------------
-ENV phpversion 7.1.9
+ENV phpversion 7.1.13
 ENV PHP_INSTALL_DIR ${HOME}/php
 RUN cd ${SRC_DIR} \
     && ls -l \
@@ -363,9 +368,9 @@ RUN cd $SRC_DIR \
 # Install PHP mongodb extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O mongodb-1.3.2.tgz https://pecl.php.net/get/mongodb-1.3.2.tgz \
-    && tar zxf mongodb-1.3.2.tgz \
-    && cd mongodb-1.3.2 \
+    && wget -q -O mongodb-1.3.4.tgz https://pecl.php.net/get/mongodb-1.3.4.tgz \
+    && tar zxf mongodb-1.3.4.tgz \
+    && cd mongodb-1.3.4\
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config 1>/dev/null \
     && make clean \
@@ -391,9 +396,9 @@ RUN cd ${SRC_DIR} \
 # Install PHP redis extensions
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
-    && wget -q -O redis-3.1.3.tgz https://pecl.php.net/get/redis-3.1.3.tgz \
-    && tar zxf redis-3.1.3.tgz \
-    && cd redis-3.1.3 \
+    && wget -q -O redis-3.1.6.tgz https://pecl.php.net/get/redis-3.1.6.tgz \
+    && tar zxf redis-3.1.6.tgz \
+    && cd redis-3.1.6 \
     && ${PHP_INSTALL_DIR}/bin/phpize \
     && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config 1>/dev/null \
     && make clean \
@@ -501,6 +506,20 @@ RUN cd ${SRC_DIR} \
     && rm -rf ${SRC_DIR}/inotify-*
 
 # -----------------------------------------------------------------------------
+# Install PHP Gearman extensions
+# -----------------------------------------------------------------------------
+RUN cd ${SRC_DIR} \
+    && wget -q https://github.com/wcgallego/pecl-gearman/archive/gearman-2.0.3.tar.gz \
+    && tar zxf gearman-2.0.3.tar.gz \
+    && cd pecl-gearman-gearman-2.0.3 \
+    && ${PHP_INSTALL_DIR}/bin/phpize \
+    && ./configure --with-php-config=$PHP_INSTALL_DIR/bin/php-config --with-gearman=${HOME}/gearmand/ 1>/dev/null \
+    && make clean \
+    && make 1>/dev/null \
+    && make install \
+    && rm -rf ${SRC_DIR}/*
+
+# -----------------------------------------------------------------------------
 # Install phpunit
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
@@ -556,9 +575,9 @@ RUN cd ${HOME} \
 # -----------------------------------------------------------------------------
 RUN cd ${SRC_DIR} \
     && yum -y remove git subversion \
-    && wget -q -O git-2.14.1.tar.gz https://github.com/git/git/archive/v2.14.1.tar.gz \
-    && tar zxf git-2.14.1.tar.gz \
-    && cd git-2.14.1 \
+    && wget -q -O git-2.16.1.tar.gz https://github.com/git/git/archive/v2.16.1.tar.gz \
+    && tar zxf git-2.16.1.tar.gz \
+    && cd git-2.16.1 \
     && make configure \
     && ./configure --without-iconv --prefix=/usr/local/ --with-curl=${CURL_INSTALL_DIR} \
     && make \
@@ -575,6 +594,7 @@ RUN npm install apidoc nodemon -g
 # -----------------------------------------------------------------------------
 ADD run.sh /
 ADD config /home/worker/
+ADD CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 
 # -----------------------------------------------------------------------------
 # Add user worker

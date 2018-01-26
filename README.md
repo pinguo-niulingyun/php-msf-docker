@@ -2,25 +2,23 @@
 
 # Registry
 
-- 公网地址: `docker pull registry.cn-hangzhou.aliyuncs.com/pinguo-ops/php-msf-docker:latest`
-- 阿里云经典内网: `docker pull registry-internal.cn-hangzhou.aliyuncs.com/pinguo-ops/php-msf-docker:latest`
-- 阿里云VPC网络： `docker pull registry-vpc.cn-hangzhou.aliyuncs.com/pinguo-ops/php-msf-docker:latest`
-- DockerHub(国外): `docker pull pinguoops/php-msf-docker`
-- Full镜像(包含MongoDB和RabbitMQ): `docker pull registry.cn-hangzhou.aliyuncs.com/pinguo-ops/php-msf-docker:full`
+- 公网地址: `docker pull registry.cn-shanghai.aliyuncs.com/kucoin-ops/centos6-php7-dev:latest`
+- 阿里云经典内网: `docker pull registry-internal.cn-shanghai.aliyuncs.com/kucoin-ops/centos6-php7-dev:latest`
+- 阿里云VPC网络： `docker pull registry-vpc.cn-shanghai.aliyuncs.com/kucoin-ops/centos6-php7-dev:latest`
 
 # 镜像内容
 
 ## latest
 
 - CentOS 6.9
-- Nginx 1.6.2
-- PHP 7.1.9
-- Swoole 1.9.19
+- Nginx 1.12.2
+- PHP 7.1.13
+- Swoole 1.9.23
 - Yac 2.0.2
 - Xdebug 2.5.5
 - Composer
 - ImageMagick 7.0.7
-- Redis 2.8.17
+- Redis 3.2.11
 - Jq
 - Apache ab
 - Git 2.14.1
@@ -29,12 +27,11 @@
 - Supervisor
 - ApiDoc
 - Nodemon
-
-## full 额外增加
-
 - MongoDB 3.4.9
 - RabbitMQ 3.6.12
-- php-amqp 1.9.1
+- Gearman 1.1.18
+- php-amqp
+- php-gearman
 
 # Docker用户名密码
 
