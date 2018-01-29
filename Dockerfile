@@ -22,7 +22,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM* \
     pcre openssh-server openssh sudo gperf \
     screen vim git telnet expat libuuid-devel \
     lemon net-snmp net-snmp-devel \
-    ca-certificates perl-CPAN m4 \
+    ca-certificates perl-CPAN m4 gmp-devel\
     gd libjpeg libpng zlib libevent net-snmp net-snmp-devel \
     net-snmp-libs freetype libtool-tldl libxml2 unixODBC \
     libxslt libmcrypt freetds \
@@ -307,6 +307,7 @@ RUN cd ${SRC_DIR} \
        --enable-mbregex \
        --enable-fpm \
        --enable-bcmath \
+       --with-gmp \
        --enable-pcntl \
        --enable-soap \
        --enable-sockets \
